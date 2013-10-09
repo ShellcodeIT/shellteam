@@ -1,0 +1,42 @@
+@charset "UTF-8";
+
+#messages {
+	position: absolute;
+	top: 0px; left: 0px; bottom: 31px; right: 200px;
+	overflow: auto;
+}
+
+#users {
+	position: absolute;
+	top: 0px; bottom: 31px; right: 0px;
+	width: 200px;
+	background-color: #000;
+	overflow: auto;
+}
+
+
+#inputtext {
+	position: absolute;
+	left: 0px; bottom: 0px; right: 0px;
+	height: 30px;
+	background-color: #c0c0c0;
+	border-top: 1px solid #888;
+}
+
+#inputtext input[type=text] {
+	border: 1px solid #FFF;
+	position: absolute;
+	right: 200px;
+	left: 2px;
+	bottom: 2px;
+	top: 2px;
+}
+
+#inputtext input[type=button] {
+	border: 1px solid #FFF;
+	position: absolute;
+	width: 195px;
+	right: 2px;
+	bottom: 2px;
+	top: 2px;
+}

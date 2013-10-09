@@ -1,0 +1,20 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+<body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	var socket = io.connect('//'+document.domain);
+	socket.on('roomMessage', function (data) {
+		console.log(data);
+	});
+</script>
+<div id="messages"></div>
+<div id="users"></div>
+<div id="inputtext">
+<input type="text" />
+<input type="button" />
+</div>
+</body>
+</html>
