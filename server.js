@@ -50,6 +50,11 @@ var users = {
 		name: "Administrador",
 		password: "123",
 		activity: "none"
+	},
+	"arielton": {
+		name: "Siri",
+		password: "123",
+		activity: "none"
 	}
 }
 
@@ -81,11 +86,13 @@ io.sockets.on('connection', function (socket) {
 				var user = users[data.user];
 				socket.join('work');
 				// alert anothers that has joined
-				socket.broadcast.to('work').emit('userJoin', {
+				joinChannel(socket, {
+					channel: 'work',
 					user: data.user,
 					name: user.name,
 					activity: user.activity
 				});
+
 				socket.emit("identified", {
 					user: {
 						user: data.user,
@@ -95,6 +102,16 @@ io.sockets.on('connection', function (socket) {
 					ret: "success"
 				});
 				console.log(socket.id+" identify: success");
+
+				/*
+				 * set user data identification
+				 */
+				socket.__clientinfo.identity = data;
+
+				/*
+				 * send user list
+				 */
+				sendList(socket);
 			}
 		}
 
@@ -103,7 +120,25 @@ io.sockets.on('connection', function (socket) {
 			console.log(socket.id+" identify: fail");
 		}
 	});
-	
+
+	socket.on('disconnect', function() {
+		if (typeof socket.__clientinfo.identity != "undefined") {
+			var data = socket.__clientinfo.identity;
+			console.log(data);
+			if (chk(data.user) && data.user.length > 0 && chk(users[data.user])) {
+				var user = users[data.user];
+				/*
+				 * leave user
+				 */
+				socket.broadcast.to('work').emit('userLeave', {
+					user: data.user,
+					name: user.name,
+					activity: user.activity
+				});
+			};
+		}
+	});
+
 	socket.on('roomMessage', function(data) {
 		var user = users[socket.__clientinfo.identity.user];
 		socket.broadcast.to('work').emit('roomMessage', {
@@ -116,3 +151,24 @@ io.sockets.on('connection', function (socket) {
 		});
 	})
 });
+
+var sendList = function(socket) {
+	var userList = [];
+	for (var key in io.sockets.sockets) {
+		var sckt = io.sockets.socket(key);
+		if (chk(sckt.__clientinfo.identity.user)) {
+			var scktus = users[sckt.__clientinfo.identity.user];
+			var userItem = {
+				user: sckt.__clientinfo.identity.user,
+				name: scktus.name,
+				activity: scktus.activity
+			}
+			userList.push(userItem);
+		};
+	}
+	socket.emit('userList', userList);
+};
+
+var joinChannel = function(socket, data) {
+	socket.broadcast.to('work').emit('userJoin', data);
+}

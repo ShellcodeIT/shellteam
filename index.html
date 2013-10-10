@@ -9,7 +9,14 @@
 <script>
 	var socket = io.connect('//'+document.domain);
 	var me = null;
+	var channels = {
+		"work": {
+			"users": {}
+		}
+	};
+
 	var initsocket = function() {
+
 		/*
 		 * connection events
 		 */
@@ -35,7 +42,7 @@
 			if (data.ret == "success") {
 				$("#identification").hide();
 				me = data.user;
-				$("#users").html("@"+me.user + "<br />");
+				$("#users").html("<div id='USER--" + me.user + "'>@"+me.user + "</div>");
 				console.log(me);
 			} else {
 				$("#authform .messages").html("autenticação falhou");
@@ -43,19 +50,36 @@
 		});
 
 		socket.on('roomMessage', function (data) {
+			console.log("roomMessage: ");
+			console.log(data);
 			$("#messages").append(data.sender.name + ": " + data.message + "<br />");
 			$("#messages").scrollTop(2000000000);
 		});
 
 		socket.on('userJoin', function (data) {
-			$("#users").append("@"+data.user + "<br />");
+			console.log("userJoin: ");
+			console.log(data);
+			channels.work.users[data.user] = {
+				name: data.name,
+				activity: data.activity
+			};
+			$("#users").append("<div id='USER--" + data.user + "'>@"+data.user + "</div>");
+		});
+
+		socket.on('userLeave', function (data) {
+			console.log("userLeave: ");
+			console.log(data);
+			delete channels.work.users[data.user];
+			$("#USER--" + data.user).remove();
 		});
 
 		socket.on('userList', function (data) {
+			console.log("userList: ");
+			console.log(data);
 			$("#users").html("");
 			for (var key in data) {
 				var user = data[key];
-				$("#users").append("@"+user.user + "<br />");
+				$("#users").append("<div id='USER--" + user.user + "'>@" + user.user + "</div>");
 			}
 		});
 
@@ -85,8 +109,8 @@
 </div>
 <div id="identification">
 	<form id="authform" action="#" onsubmit="auth(); return false;">
-		Username: <input class="username" type="text" value="anderson" /><br />
-		Password: <input class="password"  type="password" value="123" /><br />
+		Username: <input class="username" type="text" value="" /><br />
+		Password: <input class="password"  type="password" value="" /><br />
 		<input type="submit" value="autenticar" /><br />
 		<div class="messages"></div>
 	</form>
