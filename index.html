@@ -4,13 +4,95 @@
 </head>
 <body>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.cookie.js"></script>
 <script>
 	var socket = io.connect('//'+document.domain);
-	socket.on('roomMessage', function (data) {
-		console.log(data);
+	var me = null;
+	var initsocket = function() {
+		/*
+		 * connection events
+		 */
+		socket.on('connect', function () {
+			$("#initializing").hide();
+			$("#connection").css("backgroundColor", "green");
+			$("#identification").show();
+		});
+		socket.on('connecting', function () {
+			$("#connection").css("backgroundColor", "yellow");
+		});
+		socket.on('disconnect', function () {
+			$("#connection").css("backgroundColor", "#999");
+		});
+		socket.on('connect_failed', function () {
+			$("#connection").css("backgroundColor", "#F00");
+		});
+
+		/*
+		 * identification
+		 */
+		socket.on('identified', function (data) {
+			if (data.ret == "success") {
+				$("#identification").hide();
+				me = data.user;
+				$("#users").html("@"+me.user + "<br />");
+				console.log(me);
+			} else {
+				$("#authform .messages").html("autenticação falhou");
+			}
+		});
+
+		socket.on('roomMessage', function (data) {
+			$("#messages").append(data.sender.name + ": " + data.message + "<br />");
+			$("#messages").scrollTop(2000000000);
+		});
+
+		socket.on('userJoin', function (data) {
+			$("#users").append("@"+data.user + "<br />");
+		});
+
+		socket.on('userList', function (data) {
+			$("#users").html("");
+			for (var key in data) {
+				var user = data[key];
+				$("#users").append("@"+user.user + "<br />");
+			}
+		});
+
+		$("#inputtext input[type=text]").keydown(function(e) {
+			if (e.keyCode == 13) {
+				var tx = $("#inputtext input[type=text]").val();
+				socket.emit("roomMessage", tx);
+				$("#inputtext input[type=text]").val("");
+				$("#messages").append(me.name + ": " + tx + "<br />");
+				$("#messages").scrollTop(2000000000);
+			}
+		})
+	};
+
+	var auth = function () {
+		var user = $("#authform .username").val();
+		var pass = $("#authform .password").val();
+		socket.emit("identify", {user: user, password: pass})
+	}
+
+	$(window).load(function(){
+		initsocket();
 	});
 </script>
+<div id="initializing">
+	Inicializando conexão...
+</div>
+<div id="identification">
+	<form id="authform" action="#" onsubmit="auth(); return false;">
+		Username: <input class="username" type="text" value="anderson" /><br />
+		Password: <input class="password"  type="password" value="123" /><br />
+		<input type="submit" value="autenticar" /><br />
+		<div class="messages"></div>
+	</form>
+</div>
 <div id="messages"></div>
+<div id="connection"></div>
 <div id="users"></div>
 <div id="inputtext">
 <input type="text" />

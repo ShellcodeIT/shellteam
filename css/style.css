@@ -1,17 +1,55 @@
 @charset "UTF-8";
 
+body {
+	font-family: arial;
+	font-size: 12px;	
+}
+
+#initializing {
+	position: absolute;
+	top: 0px; left: 0px; bottom: 0px; right: 0px;
+	background-color: rgba(0,0,0,.5);
+	color: white;
+	font-family: arial;
+	font-size: 12px;
+	text-align: center;
+	z-index: 100000;
+}
+
+#identification {
+	position: absolute;
+	top: 0px; left: 0px; bottom: 0px; right: 0px;
+	background-color: rgba(0,0,0,.5);
+	color: white;
+	text-align: center;
+	z-index: 100000;
+	display: none;
+}
+
 #messages {
 	position: absolute;
 	top: 0px; left: 0px; bottom: 31px; right: 200px;
+	overflow: auto;
+	padding: 5px;
+}
+
+#connection {
+	position: absolute;
+	top: 0px; right: 0px;
+	width: 200px;
+	height: 3px;
+	background-color: #999;
 	overflow: auto;
 }
 
 #users {
 	position: absolute;
-	top: 0px; bottom: 31px; right: 0px;
+	top: 3px; bottom: 31px; right: 0px;
 	width: 200px;
 	background-color: #000;
 	overflow: auto;
+	color: #FFF;
+	font-size: 12px;
 }
 
 
